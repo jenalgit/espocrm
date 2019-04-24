@@ -104,6 +104,7 @@ class Webhook extends Record
         $type = $arr[1];
 
         $entity->set('entityType', $entityType);
+        $entity->set('type', $type);
 
         $field = null;
 
