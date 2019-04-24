@@ -43,4 +43,23 @@ class Webhook extends Record
             $entity->set('userId', $this->getUser()->id);
         }
     }
+
+    protected function beforeCreateEntity(Entity $entity, $data)
+    {
+        $this->checkEntityUserIsApi($entity);
+    }
+
+    protected function beforeUpdateEntity(Entity $entity, $data)
+    {
+        $this->checkEntityUserIsApi($entity);
+    }
+
+    protected function checkEntityUserIsApi(Entity $entity)
+    {
+        $userId = $entity->get('userId');
+        if (!$userId) return;
+
+        $user = $this->getEntityManager()->getEntity('User', $userId);
+        if (!$user || !$user->isApi()) throw new Forbidden("User must be an API User.");
+    }
 }
