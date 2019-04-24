@@ -34,7 +34,7 @@ use \Espo\ORM\Entity;
 
 class Webhook extends \Espo\Core\Acl\Base
 {
-    public function checkIsOwner(User $user, Entity $entity)
+    public function checkIsOwner(EntityUser $user, Entity $entity)
     {
         return $user->id === $entity->get('userId') && $user->isApi();
     }

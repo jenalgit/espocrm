@@ -8,10 +8,6 @@
             [
                 {"name": "url"},
                 {"name": "user"}
-            ],
-            [
-                {"name": "entityType"},
-                {"name": "field"}
             ]
         ]
     }

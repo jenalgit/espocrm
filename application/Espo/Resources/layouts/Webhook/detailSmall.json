@@ -10,10 +10,6 @@
             ],
             [
                 {"name": "user", "fullWidth": true}
-            ],
-            [
-                {"name": "entityType"},
-                {"name": "field"}
             ]
         ]
     }

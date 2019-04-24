@@ -26,34 +26,11 @@
  * these Appropriate Legal Notices must retain the display of the "EspoCRM" word.
  ************************************************************************/
 
-define('dynamic-handlers/webhook', ['dynamic-handler'], function (Dep) {
+define('views/webhook/fields/user', 'views/fields/link', function (Dep) {
 
     return Dep.extend({
 
-        init: function () {
-            this.onChangeEvent();
-        },
-
-        onChangeEvent: function () {
-            var event = this.model.get('event');
-
-            this.recordView.hideField('entityType');
-            this.recordView.hideField('field');
-
-            if (event) {
-                var arr = event.split('.');
-                if (arr.length === 2) {
-                    var entityType = arr[0];
-                    var type = arr[1];
-                    if (entityType === 'Record') {
-                        this.recordView.showField('entityType');
-                    }
-                    if (type === 'fieldUpdate') {
-                        this.recordView.showField('field');
-                    }
-                }
-            }
-        },
+        selectPrimaryFilterName: 'activeApi',
 
     });
 });

@@ -30,6 +30,7 @@
 namespace Espo\Controllers;
 
 use \Espo\Core\Exceptions\Error;
+use \Espo\Core\Exceptions\Forbidden;
 
 class Webhook extends \Espo\Core\Controllers\Record
 {
@@ -40,10 +41,10 @@ class Webhook extends \Espo\Core\Controllers\Record
         }
     }
 
-    public function actionCreate($params, $data, $request, $response)
+    public function actionCreate($params, $data, $request, $response = null)
     {
         $result = parent::actionCreate($params, $data, $request, $response);
-        $response->setStatus(201);
+        if ($response) $response->setStatus(201);
         return $result;
     }
 }

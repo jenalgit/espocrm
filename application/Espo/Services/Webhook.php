@@ -30,6 +30,9 @@
 namespace Espo\Services;
 
 use \Espo\ORM\Entity;
+use \Espo\Core\Exceptions\Forbidden;
+use \Espo\Core\Exceptions\Error;
+use \Espo\Core\Exceptions\BadRequest;
 
 class Webhook extends Record
 {
@@ -51,25 +54,32 @@ class Webhook extends Record
         }
     }
 
+    protected function filtetInput($data)
+    {
+        parent::filtetInput($data);
+
+        unset($data->entityType);
+        unset($data->field);
+        unset($data->type);
+    }
+
     protected function filterUpdateInput($data)
     {
         if (!$this->getUser()->isAdmin()) {
             unset($data->event);
-            unset($data->entityType);
-            unset($data->field);
         }
     }
 
     protected function beforeCreateEntity(Entity $entity, $data)
     {
         $this->checkEntityUserIsApi($entity);
-        $this->checkEntityEvent($entity);
+        $this->processBeforeCreateEntityEventData($entity);
     }
 
     protected function beforeUpdateEntity(Entity $entity, $data)
     {
         $this->checkEntityUserIsApi($entity);
-        $this->checkEntityEvent($entity);
+        $this->processBeforeCreateEntityEventData($entity);
     }
 
     protected function checkEntityUserIsApi(Entity $entity)
@@ -81,18 +91,21 @@ class Webhook extends Record
         if (!$user || !$user->isApi()) throw new Forbidden("User must be an API User.");
     }
 
-    protected function checkEntityEvent(Entity $entity)
+    protected function processBeforeCreateEntityEventData(Entity $entity)
     {
         $event = $entity->get('event');
         if (!$event) throw new Forbidden("Event is empty.");
 
         $arr = explode('.', $event);
-        if (count($arr) !== 2) throw new Forbidden("Not supported event.");
-        list($entityType, $type) = explode('.', $event);
+        if (count($arr) !== 2 && count($arr) !== 3) throw new Forbidden("Not supported event.");
 
-        if ($entityType === 'Record') {
-            $entityType = $entity->get('entityType');
-        }
+        $arr = explode('.', $event);
+        $entityType = $arr[0];
+        $type = $arr[1];
+
+        $entity->set('entityType', $entityType);
+
+        $field = null;
 
         if (!$entityType) throw new Forbidden("Entity Type is empty.");
         if (!$this->getEntityManager()->hasRepository($entityType)) throw new Forbidden("Not existing Entity Type.");
@@ -101,10 +114,18 @@ class Webhook extends Record
         if (!in_array($type, $this->eventTypeList)) throw new Forbidden("Not supported event.");
 
         if ($type === 'fieldUpdate') {
-            $field = $entity->get('field');
+            if (count($arr) == 3) {
+                $field = $arr[2];
+            }
+            $entity->set('field', $field);
+
             if (!$field) throw new Forbidden("Field is empty.");
             $forbiddenFieldList = $this->getAcl()->getScopeForbiddenFieldList($entityType);
             if (in_array($field, $forbiddenFieldList)) throw new Forbidden("Field is forbidden.");
+
+            if (!$this->getMetadata()->get(['entityDefs', $entityType, 'fields', $field])) throw new Forbidden("Field does not exist.");
+        } else {
+            $entity->set('field', null);
         }
     }
 }

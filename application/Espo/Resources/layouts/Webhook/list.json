@@ -1,15 +1,16 @@
 [
     {
         "name": "event",
-        "width": 15
+        "width": 22,
+        "link": true
     },
     {
         "name": "isActive",
-        "width": 12
+        "width": 14
     },
     {
         "name": "user",
-        "width": 18
+        "width": 22
     },
     {
         "name": "url"
