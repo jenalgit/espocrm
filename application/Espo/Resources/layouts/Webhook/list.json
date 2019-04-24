@@ -1,0 +1,17 @@
+[
+    {
+        "name": "event",
+        "width": 15
+    },
+    {
+        "name": "isActive",
+        "width": 12
+    },
+    {
+        "name": "user",
+        "width": 18
+    },
+    {
+        "name": "url"
+    }
+]
