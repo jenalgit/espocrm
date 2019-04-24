@@ -1,0 +1,24 @@
+{
+    "controller": "controllers/record",
+    "dynamicHandler": "dynamic-handlers/webhook",
+    "dynamicLogic": {
+        "fields": {
+            "entityType": {
+                "visible": {
+                    "conditionGroup": [
+                        {
+                            "type": "in",
+                            "attribute": "event",
+                            "value": [
+                                "Record.create",
+                                "Record.update",
+                                "Record.fieldUpdate",
+                                "Record.delete"
+                            ]
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}

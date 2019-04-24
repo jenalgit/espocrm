@@ -33,6 +33,13 @@ use \Espo\ORM\Entity;
 
 class Webhook extends Record
 {
+    protected $eventTypeList = [
+        "create",
+        "update",
+        "delete",
+        "fieldUpdate",
+    ];
+
     protected $onlyAdminAttributeList = ['userId', 'userName'];
 
     public function populateDefaults(Entity $entity, $data)
@@ -44,14 +51,25 @@ class Webhook extends Record
         }
     }
 
+    protected function filterUpdateInput($data)
+    {
+        if (!$this->getUser()->isAdmin()) {
+            unset($data->event);
+            unset($data->entityType);
+            unset($data->field);
+        }
+    }
+
     protected function beforeCreateEntity(Entity $entity, $data)
     {
         $this->checkEntityUserIsApi($entity);
+        $this->checkEntityEvent($entity);
     }
 
     protected function beforeUpdateEntity(Entity $entity, $data)
     {
         $this->checkEntityUserIsApi($entity);
+        $this->checkEntityEvent($entity);
     }
 
     protected function checkEntityUserIsApi(Entity $entity)
@@ -61,5 +79,32 @@ class Webhook extends Record
 
         $user = $this->getEntityManager()->getEntity('User', $userId);
         if (!$user || !$user->isApi()) throw new Forbidden("User must be an API User.");
+    }
+
+    protected function checkEntityEvent(Entity $entity)
+    {
+        $event = $entity->get('event');
+        if (!$event) throw new Forbidden("Event is empty.");
+
+        $arr = explode('.', $event);
+        if (count($arr) !== 2) throw new Forbidden("Not supported event.");
+        list($entityType, $type) = explode('.', $event);
+
+        if ($entityType === 'Record') {
+            $entityType = $entity->get('entityType');
+        }
+
+        if (!$entityType) throw new Forbidden("Entity Type is empty.");
+        if (!$this->getEntityManager()->hasRepository($entityType)) throw new Forbidden("Not existing Entity Type.");
+        if (!$this->getAcl()->checkScope($entityType, 'read')) throw new Forbidden("Entity Type is forbidden.");
+
+        if (!in_array($type, $this->eventTypeList)) throw new Forbidden("Not supported event.");
+
+        if ($type === 'fieldUpdate') {
+            $field = $entity->get('field');
+            if (!$field) throw new Forbidden("Field is empty.");
+            $forbiddenFieldList = $this->getAcl()->getScopeForbiddenFieldList($entityType);
+            if (in_array($field, $forbiddenFieldList)) throw new Forbidden("Field is forbidden.");
+        }
     }
 }
