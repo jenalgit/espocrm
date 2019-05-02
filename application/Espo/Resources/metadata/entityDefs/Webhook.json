@@ -20,7 +20,8 @@
         },
         "entityType": {
             "type": "varchar",
-            "readOnly": true
+            "readOnly": true,
+            "view": "views/fields/entity-type"
         },
         "type": {
             "type": "enum",
