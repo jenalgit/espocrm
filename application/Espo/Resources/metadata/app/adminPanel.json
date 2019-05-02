@@ -203,6 +203,13 @@
                 "description":"leadCapture"
             },
             {
+                "url": "#Template",
+                "label": "PDF Templates",
+                "description": "pdfTemplates"
+
+            },
+            {
+
                 "url": "#Webhook",
                 "label": "Webhooks",
                 "description": "webhooks"
@@ -213,9 +220,9 @@
                 "description": "attachments"
             },
             {
-                "url": "#Template",
-                "label": "PDF Templates",
-                "description": "pdfTemplates"
+                "url": "#Admin/jobs",
+                "label": "Jobs",
+                "description": "jobs"
             }
         ],
         "order": 25
